@@ -1,6 +1,3 @@
-import { createAction } from 'redux-act';
-import { endpoint } from 'src/app/api';
-import asyncActionCreator from './asyncActionCreator';
 import { suggestRoles, fetchRole, updateRole } from './roleActions';
 import { fetchAlerts, addAlert, deleteAlert } from './alertActions';
 import { queryNotifications, deleteNotifications } from './notificationActions';
@@ -29,6 +26,11 @@ import {
   fetchEntityTags
 } from './entityActions';
 
+import { fetchMetadata,
+  fetchStatistics,
+  setLocale
+} from './metaActions'
+
 export {
   suggestRoles,
   fetchRole,
@@ -55,17 +57,8 @@ export {
   deleteCollection,
   deleteNotifications,
   ingestDocument,
-  deleteDocument
+  deleteDocument,
+  fetchMetadata,
+  fetchStatistics,
+  setLocale
 };
-
-export const fetchMetadata = asyncActionCreator(() => async dispatch => {
-  const response = await endpoint.get('metadata');
-  return { metadata: response.data };
-}, { name: 'FETCH_METADATA' });
-
-export const fetchStatistics = asyncActionCreator(() => async dispatch => {
-  const response = await endpoint.get('statistics');
-  return { statistics: response.data };
-}, { name: 'FETCH_STATISTICS' });
-
-export const setLocale = createAction('SET_LOCALE');

@@ -4,7 +4,12 @@ import { withRouter } from 'react-router';
 import { defineMessages, injectIntl, FormattedMessage, FormattedNumber} from 'react-intl';
 import Waypoint from 'react-waypoint';
 
-import { Entity, Date, Country, SectionLoading, Breadcrumbs } from 'src/components/common';
+import Entity from 'src/components/common/Entity'
+import Date from 'src/components/common/Date'
+import SectionLoading from 'src/components/common/SectionLoading'
+import Breadcrumbs from 'src/components/common/Breadcrumbs'
+import Country from 'src/components/common/Country'
+
 import Screen from 'src/components/Screen/Screen';
 import ErrorScreen from 'src/components/Screen/ErrorScreen';
 import LoadingScreen from 'src/components/Screen/LoadingScreen';

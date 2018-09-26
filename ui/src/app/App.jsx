@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { Provider } from 'react-redux'
-import { FocusStyleManager } from '@blueprintjs/core';
-import { inRange } from 'lodash';
+import { FocusStyleManager } from '@blueprintjs/core/lib/esm/accessibility/focusStyleManager';
+import inRange from 'lodash/inRange';
 import Router from './Router';
 import Translator from './Translator';
 
