@@ -49,11 +49,7 @@
     "react-intl-po": "^2.2.2",
     "react-scripts": "^2.0.0-next.fb6e6f70"
   },
-  "proxy": {
-    "/api": {
-      "target": "http://api:5000"
-    }
-  },
+  "proxy": "http://api:5000",
   "browserslist": [
     "chrome > 40",
     "Firefox ESR",
