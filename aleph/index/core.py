@@ -1,7 +1,16 @@
 from aleph.core import settings
 
 
-def entity_index():
+def expand_schemata(specific=None, deep=None):
+    from banal import ensure_list
+    from followthemoney import model
+    # and: filter:schemata
+    # or: filter:schema
+    schemata = set()
+    specific = ensure_list(specific)
+
+
+def entity_index(schema):
     """Index that us currently written by new queries."""
     return settings.ENTITIES_INDEX
 

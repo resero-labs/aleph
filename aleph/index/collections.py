@@ -148,8 +148,11 @@ def get_instance_stats(authz):
 
 def delete_collection(collection_id, sync=False):
     """Delete all documents from a particular collection."""
-    es.delete(collections_index(), doc_type='doc', id=str(collection_id),
-              refresh=sync, ignore=[404])
+    es.delete(collections_index(),
+              doc_type='doc',
+              id=str(collection_id),
+              refresh=sync,
+              ignore=[404])
 
 
 def delete_entities(collection_id):

@@ -29,9 +29,11 @@ def index_entity(entity, sync=False):
 def delete_entity(entity_id, sync=False):
     """Delete an entity from the index."""
     refresh = 'wait_for' if sync else False
-    for index in entities_index_list():
-        es.delete(index=index, doc_type='doc', id=str(entity_id),
-                  refresh=refresh, ignore=[404])
+    es.delete(index=entities_index(),
+              doc_type='doc',
+              id=str(entity_id),
+              refresh=refresh,
+              ignore=[404])
 
 
 def get_entity(entity_id):
@@ -104,7 +106,7 @@ def iter_entities_by_ids(ids, authz=None):
             '_source': {'includes': includes},
             'size': min(MAX_PAGE, len(chunk) * 2)
         }
-        result = search_safe(index=entity_index(),
+        result = search_safe(index=entities_index(),
                              body=query,
                              request_cache=False)
         for doc in result.get('hits', {}).get('hits', []):
@@ -142,13 +144,13 @@ def _index_updates(collection, entities):
     for entity_id, entity in entities.items():
         context = dict(common)
         context['created_at'] = timestamps.get(entity.id)
-        entity = finalize_index(entity, context, [])
+        body = finalize_index(entity, context, [])
         # pprint(entity)
         actions.append({
             '_id': entity_id,
-            '_index': entity_index(),
+            '_index': entity_index(entity.schema),
             '_type': 'doc',
-            '_source': entity
+            '_source': body
         })
     return actions
 
@@ -208,4 +210,5 @@ def index_single(obj, proxy, data, texts, sync=False):
     data['updated_at'] = obj.updated_at
     # pprint(data)
     refresh = 'wait_for' if sync else False
-    return index_safe(entity_index(), obj.id, data, refresh=refresh)
+    index = entity_index(proxy.schema)
+    return index_safe(index, obj.id, data, refresh=refresh)
