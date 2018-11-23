@@ -2,7 +2,8 @@ from followthemoney.types import registry
 
 from aleph.core import es
 from aleph.index.core import collections_index
-from aleph.index.core import record_index, entity_index
+from aleph.index.core import records_write_index
+from aleph.index.core import entities_write_index
 
 PARTIAL_DATE = "yyyy-MM-dd'T'HH:mm:ss||yyyy-MM-dd||yyyy-MM||yyyy"
 LATIN_TEXT = {"type": "text", "analyzer": "icu_latin"}
@@ -32,7 +33,7 @@ def configure_collections():
             {
                 "fields": {
                     "match": "schemata.*",
-                    "mapping": KEYWORD
+                    "mapping": {"type": "long"}
                 }
             }
         ],
@@ -96,7 +97,7 @@ def configure_records():
         }
     }
     settings = index_settings(shards=10, refresh_interval='15s')
-    configure_index(record_index(), mapping, settings)
+    configure_index(records_write_index(), mapping, settings)
 
 
 def configure_entities():
@@ -107,9 +108,9 @@ def configure_schema(schema):
     # Generate relevant type mappings for entity properties so that
     # we can do correct searches on each.
     schema_mapping = {}
-    for name, prop in schema.properties.items():
-        config = TYPE_MAPPINGS.get(prop.type, KEYWORD)
-        schema_mapping[name] = config
+    # for name, prop in schema.properties.items():
+    #     config = TYPE_MAPPINGS.get(prop.type, KEYWORD)
+    #     schema_mapping[name] = config
 
     mapping = {
         "date_detection": False,
@@ -180,7 +181,7 @@ def configure_schema(schema):
         }
     }
     settings = index_settings(shards=10)
-    configure_index(entity_index(schema), mapping, settings)
+    configure_index(entities_write_index(schema), mapping, settings)
 
 
 def index_settings(shards=5, refresh_interval=None):

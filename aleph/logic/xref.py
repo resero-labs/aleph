@@ -8,7 +8,7 @@ from followthemoney.compare import compare
 
 from aleph.core import db, celery
 from aleph.model import Match, Document, Collection
-from aleph.index.core import entities_index
+from aleph.index.core import entities_read_index
 from aleph.index.match import match_query
 from aleph.index.entities import iter_proxies, iter_entities_by_ids
 from aleph.index.util import search_safe, unpack_result, none_query
@@ -29,7 +29,7 @@ def xref_item(proxy):
         'size': 100,
         '_source': {'includes': ['schema', 'properties', 'collection_id']}
     }
-    result = search_safe(index=entities_index(), body=query)
+    result = search_safe(index=entities_read_index(), body=query)
     results = result.get('hits').get('hits')
     for result in results:
         result = unpack_result(result)

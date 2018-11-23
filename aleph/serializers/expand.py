@@ -4,7 +4,7 @@ from marshmallow import Schema, post_dump
 
 from aleph.core import es
 from aleph.model import Role, Document, Entity, Collection
-from aleph.index.core import entities_index_list, collections_index
+from aleph.index.core import entities_read_index, collections_index
 from aleph.index.util import unpack_result
 
 log = logging.getLogger(__name__)
@@ -37,9 +37,9 @@ class ExpandableSchema(Schema):
                 query = {'_index': index, '_id': id_}
                 queries.append(((type_, id_), query))
             elif type_ in [Document, Entity]:
-                for index in entities_index_list():
-                    query = {'_index': index, '_id': id_}
-                    queries.append(((type_, id_), query))
+                index = entities_read_index()
+                query = {'_index': index, '_id': id_}
+                queries.append(((type_, id_), query))
 
         if not len(queries):
             return

@@ -100,7 +100,7 @@ def flushdocuments(foreign_id):
 
 
 @manager.command
-def flushentities(foreign_id):
+def flushbulk(foreign_id):
     """Delete all entities from given collection."""
     collection = get_collection(foreign_id)
     delete_entities(collection.id)

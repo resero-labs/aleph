@@ -9,7 +9,7 @@ from elasticsearch.helpers import scan, bulk, BulkIndexError
 
 from aleph.core import es, cache
 from aleph.model import Document
-from aleph.index.core import entity_index, entities_index, entities_index_list
+from aleph.index.core import entities_write_index, entities_read_index
 from aleph.index.util import unpack_result, index_form
 from aleph.index.util import index_safe, search_safe, authz_query, bool_query
 from aleph.index.util import MAX_PAGE, TIMEOUT, REQUEST_TIMEOUT
@@ -29,7 +29,7 @@ def index_entity(entity, sync=False):
 def delete_entity(entity_id, sync=False):
     """Delete an entity from the index."""
     refresh = 'wait_for' if sync else False
-    es.delete(index=entities_index(),
+    es.delete(index=entities_read_index(),
               doc_type='doc',
               id=str(entity_id),
               refresh=refresh,
@@ -40,15 +40,14 @@ def get_entity(entity_id):
     """Fetch an entity from the index."""
     if entity_id is None:
         return None
-    for index in entities_index_list():
-        result = es.get(index=index,
-                        doc_type='doc',
-                        id=entity_id,
-                        ignore=[404],
-                        _source_exclude=['text'])
-        result = unpack_result(result)
-        if result is not None:
-            return result
+    result = es.get(index=entities_read_index(),
+                    doc_type='doc',
+                    id=entity_id,
+                    ignore=[404],
+                    _source_exclude=['text'])
+    result = unpack_result(result)
+    if result is not None:
+        return result
 
 
 def iter_entities(authz=None, collection_id=None, schemata=None,
@@ -71,7 +70,8 @@ def iter_entities(authz=None, collection_id=None, schemata=None,
         'sort': ['_doc'],
         '_source': source
     }
-    for res in scan(es, index=entities_index(), query=query, scroll='1410m'):
+    index = entities_read_index()
+    for res in scan(es, index=index, query=query, scroll='1410m'):
         entity = unpack_result(res)
         if entity is not None:
             yield entity
@@ -106,7 +106,7 @@ def iter_entities_by_ids(ids, authz=None):
             '_source': {'includes': includes},
             'size': min(MAX_PAGE, len(chunk) * 2)
         }
-        result = search_safe(index=entities_index(),
+        result = search_safe(index=entities_read_index(),
                              body=query,
                              request_cache=False)
         for doc in result.get('hits', {}).get('hits', []):
@@ -148,7 +148,7 @@ def _index_updates(collection, entities):
         # pprint(entity)
         actions.append({
             '_id': entity_id,
-            '_index': entity_index(entity.schema),
+            '_index': entities_write_index(entity.schema),
             '_type': 'doc',
             '_source': body
         })
@@ -210,5 +210,5 @@ def index_single(obj, proxy, data, texts, sync=False):
     data['updated_at'] = obj.updated_at
     # pprint(data)
     refresh = 'wait_for' if sync else False
-    index = entity_index(proxy.schema)
+    index = entities_write_index(proxy.schema)
     return index_safe(index, obj.id, data, refresh=refresh)

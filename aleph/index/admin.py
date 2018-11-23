@@ -31,4 +31,5 @@ def clear_index():
                        body=q,
                        refresh=True,
                        wait_for_completion=True,
-                       conflicts='proceed')
+                       conflicts='proceed',
+                       ignore=[404])

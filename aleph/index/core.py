@@ -10,7 +10,7 @@ def expand_schemata(specific=None, deep=None):
     specific = ensure_list(specific)
 
 
-def entity_index(schema):
+def entities_write_index(schema):
     """Index that us currently written by new queries."""
     return settings.ENTITIES_INDEX
 
@@ -20,17 +20,17 @@ def entities_index_list():
     return settings.ENTITIES_INDEX_SET
 
 
-def entities_index():
+def entities_read_index(schema=None):
     """Combined index to run all queries against."""
     return ','.join(entities_index_list())
 
 
-def record_index():
+def records_write_index():
     """Index that us currently written by new queries."""
     return settings.RECORDS_INDEX
 
 
-def records_index():
+def records_read_index():
     """Combined index to run all queries against."""
     return ','.join(settings.RECORDS_INDEX_SET)
 
@@ -41,4 +41,4 @@ def collections_index():
 
 
 def all_indexes():
-    return ','.join([collections_index(), entities_index(), records_index()])
+    return ','.join([collections_index(), entities_read_index(), records_read_index()])
