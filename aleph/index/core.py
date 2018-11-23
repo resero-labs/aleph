@@ -1,9 +1,10 @@
+from banal import ensure_list
+from followthemoney import model
+
 from aleph.core import settings
 
 
 def expand_schemata(specific=None, deep=None):
-    from banal import ensure_list
-    from followthemoney import model
     # and: filter:schemata
     # or: filter:schema
     schemata = set()
@@ -15,14 +16,9 @@ def entities_write_index(schema):
     return settings.ENTITIES_INDEX
 
 
-def entities_index_list():
-    """Combined index to run all queries against."""
-    return settings.ENTITIES_INDEX_SET
-
-
 def entities_read_index(schema=None):
     """Combined index to run all queries against."""
-    return ','.join(entities_index_list())
+    return ','.join(settings.ENTITIES_INDEX_SET)
 
 
 def records_write_index():
@@ -41,4 +37,6 @@ def collections_index():
 
 
 def all_indexes():
-    return ','.join([collections_index(), entities_read_index(), records_read_index()])
+    return ','.join([collections_index(),
+                     entities_read_index(),
+                     records_read_index()])

@@ -3,7 +3,8 @@ from pprint import pprint, pformat  # noqa
 
 from aleph.core import es
 from aleph.index.core import all_indexes
-from aleph.index.mapping import configure_collections, configure_records
+from aleph.index.mapping import configure_collections
+from aleph.index.mapping import configure_records
 from aleph.index.mapping import configure_entities
 
 log = logging.getLogger(__name__)

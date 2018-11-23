@@ -7,12 +7,13 @@ from faker import Factory
 
 from aleph import settings
 from aleph.model import Role, Document, Collection, Permission
-from aleph.model import create_system_roles, destroy_db
 from aleph.index.admin import delete_index, upgrade_search
 from aleph.index.admin import clear_index, refresh_index
 from aleph.index.documents import index_document
 from aleph.logic.collections import update_collection, index_collections
 from aleph.logic.entities import index_entities
+from aleph.logic.roles import create_system_roles
+from aleph.logic.migration import destroy_db
 from aleph.core import db, kv, create_app
 from aleph.views import mount_app_blueprints
 from aleph.oauth import oauth
