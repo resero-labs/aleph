@@ -28,13 +28,14 @@ def unpack_result(res):
     """Turn a document hit from ES into a more traditional JSON object."""
     error = res.get('error')
     if error is not None:
-        raise RuntimeError("Query error: %(reason)s" % error)
+        raise RuntimeError("Query error: %r" % error)
     if res.get('found') is False:
         return
     data = res.get('_source', {})
     data['id'] = str(res.get('_id'))
     if res.get('_score') is not None:
         data['score'] = res.get('_score')
+    data['_index'] = res.get('_index')
     if 'highlight' in res:
         data['highlight'] = []
         for key, value in res.get('highlight', {}).items():
@@ -101,7 +102,8 @@ def query_delete(index, query, **kwargs):
             raise
         except Exception as exc:
             log.warning("Query delete failed: %s", exc)
-        backoff_cluster(failures=attempt)
+        # backoff_cluster(failures=attempt)
+        raise
 
 
 def index_safe(index, id, body, **kwargs):

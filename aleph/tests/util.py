@@ -18,7 +18,7 @@ from aleph.core import db, kv, create_app
 from aleph.views import mount_app_blueprints
 from aleph.oauth import oauth
 
-APP_NAME = 'aleph_test_instance'
+APP_NAME = 'alephtest'
 UI_URL = 'http://aleph.ui/'
 FIXTURES = os.path.join(os.path.dirname(__file__), 'fixtures')
 DB_URI = settings.DATABASE_URI + '_test'
@@ -48,11 +48,10 @@ class TestCase(FlaskTestCase):
         settings.ALEPH_PASSWORD_LOGIN = True
         settings.MAIL_SERVER = None
         settings.ENTITIES_SERVICE = None
-        settings.ENTITIES_INDEX = '%s_entity' % APP_NAME
-        settings.ENTITIES_INDEX_SET = [settings.ENTITIES_INDEX]
-        settings.RECORDS_INDEX = '%s_records' % APP_NAME
+        settings.ENTITIES_INDEX = '%s-entity' % APP_NAME
+        settings.RECORDS_INDEX = '%s-record' % APP_NAME
         settings.RECORDS_INDEX_SET = [settings.RECORDS_INDEX]
-        settings.COLLECTIONS_INDEX = '%s_collection' % APP_NAME
+        settings.COLLECTIONS_INDEX = '%s-collection' % APP_NAME
         settings.REDIS_URL = None
         app = create_app({})
         mount_app_blueprints(app)

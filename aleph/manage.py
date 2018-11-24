@@ -14,7 +14,7 @@ from aleph.views import mount_app_blueprints
 from aleph.index.admin import delete_index
 from aleph.logic.collections import create_collection
 from aleph.logic.collections import update_collection, index_collections
-from aleph.logic.collections import delete_collection, delete_entities
+from aleph.logic.collections import delete_collection, delete_bulk_entities
 from aleph.logic.documents import ingest_document
 from aleph.logic.documents import process_documents
 from aleph.logic.scheduled import daily, hourly
@@ -94,7 +94,7 @@ def flush(foreign_id):
 def flushbulk(foreign_id):
     """Delete all entities from given collection."""
     collection = get_collection(foreign_id)
-    delete_entities(collection.id)
+    delete_bulk_entities(collection.id)
     db.session.commit()
 
 

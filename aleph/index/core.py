@@ -1,24 +1,38 @@
+import logging
 from banal import ensure_list
 from followthemoney import model
 
 from aleph.core import settings
 
+log = logging.getLogger(__name__)
 
-def expand_schemata(specific=None, deep=None):
-    # and: filter:schemata
-    # or: filter:schema
-    schemata = set()
-    specific = ensure_list(specific)
+
+def schema_index(schema):
+    """Convert a schema object to an index name."""
+    return '-'.join((settings.ENTITIES_INDEX, schema.name.lower()))
 
 
 def entities_write_index(schema):
     """Index that us currently written by new queries."""
-    return settings.ENTITIES_INDEX
+    return schema_index(schema)
 
 
-def entities_read_index(schema=None):
+def entities_read_index(schema=None, descendants=True, exclude=None):
     """Combined index to run all queries against."""
-    return ','.join(settings.ENTITIES_INDEX_SET)
+    schemata = set()
+    names = ensure_list(schema) or model.schemata.values()
+    for schema in names:
+        schema = model.get(schema)
+        schemata.add(schema)
+        if descendants:
+            schemata.update(schema.descendants)
+    exclude = model.get(exclude)
+    indexes = list(settings.ENTITIES_INDEX_LEGACY)
+    for schema in schemata:
+        if not schema.abstract and schema != exclude:
+            indexes.append(schema_index(schema))
+    # log.info("Read index: %r", indexes)
+    return ','.join(indexes)
 
 
 def records_write_index():

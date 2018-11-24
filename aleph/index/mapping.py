@@ -1,3 +1,5 @@
+import logging
+from followthemoney import model
 from followthemoney.types import registry
 
 from aleph.core import es
@@ -5,17 +7,21 @@ from aleph.index.core import collections_index
 from aleph.index.core import records_write_index
 from aleph.index.core import entities_write_index
 
-PARTIAL_DATE = "yyyy-MM-dd'T'HH:mm:ss||yyyy-MM-dd||yyyy-MM||yyyy"
+log = logging.getLogger(__name__)
+
+DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss||yyyy-MM-dd||yyyy-MM||yyyy"
+PARTIAL_DATE = {"type": "date", "format": DATE_FORMAT}
 LATIN_TEXT = {"type": "text", "analyzer": "icu_latin"}
 RAW_TEXT = {"type": "text"}
 KEYWORD = {"type": "keyword"}
 TYPE_MAPPINGS = {
     registry.text: LATIN_TEXT,
-    registry.date: {"type": "date", "format": PARTIAL_DATE},
+    registry.date: PARTIAL_DATE,
 }
 
 
 def configure_index(index, mapping, settings):
+    log.info("Configuring index: %s...", index)
     mapping['date_detection'] = False
     res = es.indices.put_mapping(index=index, doc_type='doc',
                                  body=mapping, ignore=[404])
@@ -101,16 +107,18 @@ def configure_records():
 
 
 def configure_entities():
-    configure_schema(None)
+    for schema in model.schemata.values():
+        if not schema.abstract:
+            configure_schema(schema)
 
 
 def configure_schema(schema):
     # Generate relevant type mappings for entity properties so that
     # we can do correct searches on each.
     schema_mapping = {}
-    # for name, prop in schema.properties.items():
-    #     config = TYPE_MAPPINGS.get(prop.type, KEYWORD)
-    #     schema_mapping[name] = config
+    for name, prop in schema.properties.items():
+        config = TYPE_MAPPINGS.get(prop.type, KEYWORD)
+        schema_mapping[name] = config
 
     mapping = {
         "date_detection": False,
@@ -155,12 +163,12 @@ def configure_schema(schema):
             "columns": KEYWORD,
             "created_at": {"type": "date"},
             "updated_at": {"type": "date"},
-            "date": {"type": "date", "format": PARTIAL_DATE},
-            "authored_at": {"type": "date", "format": PARTIAL_DATE},
-            "modified_at": {"type": "date", "format": PARTIAL_DATE},
-            "published_at": {"type": "date", "format": PARTIAL_DATE},
-            "retrieved_at": {"type": "date", "format": PARTIAL_DATE},
-            "dates": {"type": "date", "format": PARTIAL_DATE},
+            "date": PARTIAL_DATE,
+            "authored_at": PARTIAL_DATE,
+            "modified_at": PARTIAL_DATE,
+            "published_at": PARTIAL_DATE,
+            "retrieved_at": PARTIAL_DATE,
+            "dates": PARTIAL_DATE,
             "author": KEYWORD,
             "generator": KEYWORD,
             "summary": RAW_TEXT,
