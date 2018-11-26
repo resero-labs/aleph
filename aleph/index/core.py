@@ -14,7 +14,9 @@ def schema_index(schema):
 
 def entities_write_index(schema):
     """Index that us currently written by new queries."""
-    return schema_index(schema)
+    schema = model.get(schema)
+    if schema is not None:
+        return schema_index(schema)
 
 
 def entities_read_index(schema=None, descendants=True, exclude=None):
@@ -51,6 +53,6 @@ def collections_index():
 
 
 def all_indexes():
-    return ','.join([collections_index(),
+    return ','.join((collections_index(),
                      entities_read_index(),
-                     records_read_index()])
+                     records_read_index()))

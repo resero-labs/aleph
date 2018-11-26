@@ -10,7 +10,7 @@ from elasticsearch.helpers import scan, bulk, BulkIndexError
 from aleph.core import es, cache
 from aleph.model import Document
 from aleph.index.core import entities_write_index, entities_read_index
-from aleph.index.util import unpack_result, index_form, query_delete
+from aleph.index.util import unpack_result, index_form
 from aleph.index.util import index_safe, search_safe, authz_query, bool_query
 from aleph.index.util import MAX_PAGE, TIMEOUT, REQUEST_TIMEOUT
 
@@ -55,7 +55,7 @@ def iter_entities(authz=None, collection_id=None, schemata=None,
         'sort': ['_doc'],
         '_source': source
     }
-    index = entities_read_index()
+    index = entities_read_index(schema=schemata)
     for res in scan(es, index=index, query=query, scroll='1410m'):
         entity = unpack_result(res)
         if entity is not None:
@@ -88,7 +88,7 @@ def entities_by_ids(ids, authz=None):
         query = {
             'query': query,
             '_source': {'excludes': ['text']},
-            'size': min(MAX_PAGE, len(chunk) * 2)
+            'size': min(MAX_PAGE, len(chunk))
         }
         result = search_safe(index=entities_read_index(),
                              body=query,
@@ -189,7 +189,8 @@ def finalize_index(proxy, context, texts):
     if not data.get('created_at'):
         data['created_at'] = data.get('updated_at')
     data.pop('id', None)
-    return clean_dict(data)
+    # return clean_dict(data)
+    return data
 
 
 def index_single(obj, proxy, data, texts, sync=False):
@@ -202,5 +203,5 @@ def index_single(obj, proxy, data, texts, sync=False):
     # pprint(data)
     refresh = 'wait_for' if sync else False
     index = entities_write_index(proxy.schema)
-    delete_entity(obj.id, exclude=proxy.schema)
+    # delete_entity(obj.id, exclude=proxy.schema)
     return index_safe(index, obj.id, data, refresh=refresh)

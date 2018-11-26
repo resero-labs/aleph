@@ -29,7 +29,8 @@ def xref_item(proxy):
         'size': 100,
         '_source': {'includes': ['schema', 'properties', 'collection_id']}
     }
-    result = search_safe(index=entities_read_index(), body=query)
+    index = entities_read_index(schema=proxy.schema.matchable_schemata)
+    result = search_safe(index=index, body=query)
     results = result.get('hits').get('hits')
     for result in results:
         result = unpack_result(result)

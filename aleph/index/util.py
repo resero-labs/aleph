@@ -153,7 +153,7 @@ def index_form(texts):
 
         if isinstance(text, str):
             text = text.strip()
-            if len(text):
+            if len(text) > 2:
                 total_len += len(text)
                 results.append(text)
     return results
