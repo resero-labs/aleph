@@ -65,9 +65,9 @@ services:
     tmpfs: /tmp
     volumes:
       - archive-data:/data
-      - "./aleph:/aleph/aleph"
-      - "./contrib:/aleph/contrib"
-      - "./mappings:/aleph/mappings"
+      - "/data/workspaces/drapp/code/aleph/aleph:/aleph/aleph"
+      - "/data/workspaces/drapp/code/aleph/contrib:/aleph/contrib"
+      - "/data/workspaces/drapp/code/aleph/mappings:/aleph/mappings"
       - "/:/host"
     cap_add:
       - SYS_PTRACE
@@ -98,7 +98,7 @@ services:
     tmpfs: /tmp
     volumes:
       - archive-data:/data
-      - "./aleph:/aleph/aleph"
+      - "/data/workspaces/drapp/code/aleph/aleph:/aleph/aleph"
       - "/:/host"
     environment:
       ALEPH_DEBUG: 'true'
@@ -115,10 +115,10 @@ services:
     ports:
       - "8080:3000"
     volumes:
-      - "./ui/src:/alephui/src"
-      - "./ui/public:/alephui/public"
-      - "./ui/.tx:/alephui/.tx"
-      - "./ui/package.json:/alephui/package.json"
+      - "/data/workspaces/drapp/code/aleph/ui/src:/alephui/src"
+      - "/data/workspaces/drapp/code/aleph/ui/public:/alephui/public"
+      - "/data/workspaces/drapp/code/aleph/ui/.tx:/alephui/.tx"
+      - "/data/workspaces/drapp/code/aleph/ui/package.json:/alephui/package.json"
     environment:
       REACT_APP_API_ENDPOINT: '/api/2'
     env_file:

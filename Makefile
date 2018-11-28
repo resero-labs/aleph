@@ -16,6 +16,9 @@ shell: services
 test:
 	$(DEVDOCKER) contrib/test.sh
 
+uitest:
+	$(COMPOSE) run --rm ui ash
+
 upgrade: build
 	$(COMPOSE) up -d postgres elasticsearch
 	sleep 10
