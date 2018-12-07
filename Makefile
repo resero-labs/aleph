@@ -8,7 +8,7 @@ services:
 	$(COMPOSE) up -d --remove-orphans \
 		rabbitmq postgres elasticsearch \
 		convert-document recognize-text \
-		extract-entities
+		extract-entities dejavu
 
 shell: services    
 	$(DEVDOCKER) /bin/bash

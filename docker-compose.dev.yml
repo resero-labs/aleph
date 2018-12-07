@@ -15,8 +15,23 @@ services:
   elasticsearch:
     image: alephdata/aleph-elasticsearch:6
     restart: on-failure
+    environment:
+      - http.cors.allow-origin="http://dejavu:1358"
+      - http.cors.enabled=true
+      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
+      - http.cors.allow-credentials=true
+    ports:
+      - "9200:9200"
+      - "9300:9300"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
+
+  dejavu:
+    image: appbaseio/dejavu
+    ports:
+      - "1358:1358"
+    links:
+      - elasticsearch
 
   rabbitmq:
     image: rabbitmq

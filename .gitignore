@@ -24,3 +24,5 @@ npm-debug.log*
 .idea/
 ui/.idea/
 node_modules/*
+
+activate
