@@ -70,9 +70,11 @@ def sitemap_index():
     enable_cache(vary_user=False)
     collections = []
     for collection in Collection.all_authz(Authz.from_role(None)):
+        updated_at = collection.updated_at.date().isoformat()
+        updated_at = max(settings.SITEMAP_FLOOR, updated_at)
         collections.append({
             'url': url_for('collections_api.sitemap', id=collection.id),
-            'updated_at': collection.updated_at.date().isoformat()
+            'updated_at': updated_at
         })
     return render_xml('sitemap_index.xml', collections=collections)
 
@@ -87,7 +89,7 @@ def api_v1_message(path):
     return jsonify({
         'status': 'error',
         'message': gettext('/api/1/ is deprecated, please use /api/2/.')
-    }, status=501)
+    }, status=410)
 
 
 @blueprint.app_errorhandler(NotModified)
