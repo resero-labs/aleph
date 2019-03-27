@@ -50,6 +50,7 @@ build:
 	docker build --cache-from resero/aleph-topic-wrapper -t resero/aleph-topic-wrapper:$(TAG) topic-wrapper
 	docker build --cache-from alephdata/aleph -t alephdata/aleph:$(TAG) .
 	docker build --cache-from alephdata/aleph-ui -t alephdata/aleph-ui:$(TAG) ui
+	docker build --cache-from alephdata/aleph-dev-nginx -t alephdata/aleph-dev-nginx:$(TAG) -f ui/Dockerfile.nginx ui
 	docker build --cache-from alephdata/aleph-convert-document -t alephdata/aleph-convert-document:$(TAG) services/convert-document
 	docker build --cache-from alephdata/aleph-recognize-text -t alephdata/aleph-recognize-text:$(TAG) services/recognize-text
 	docker build --cache-from alephdata/aleph-extract-entities -t alephdata/aleph-extract-entities:$(TAG) services/extract-entities

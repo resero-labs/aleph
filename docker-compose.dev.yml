@@ -111,11 +111,11 @@ services:
 
   api:
     image: alephdata/aleph
-    command: python3 aleph/manage.py runserver -h 0.0.0.0 -p 5000
+    command: python3 aleph/manage.py runserver -h 0.0.0.0 -p 8000
     expose:
-      - 5000
+      - 8000
     ports:
-      - "5000:5000"
+      - "5000:8000"
     restart: on-failure
     links:
       - postgres
@@ -137,14 +137,26 @@ services:
     env_file:
       - aleph.env
 
+  nginx:
+    image: alephdata/aleph-dev-nginx
+    links:
+      - api
+      - topic
+      - cluster
+      - ui
+    ports:
+      - "8080:8080"
+
   ui:
     image: alephdata/aleph-ui
     links:
       - api
       - topic
+      - cluster
     command: npm run start
     ports:
-      - "8080:3000"
+      #- "8080:3000"
+      - "3000:3000"
     volumes:
       - "./ui/src:/alephui/src"
       - "./ui/public:/alephui/public"
@@ -152,6 +164,7 @@ services:
       - "./ui/package.json:/alephui/package.json"
     environment:
       REACT_APP_API_ENDPOINT: '/api/2'
+      #REACT_APP_API_ENDPOINT: 'http://localhost:5000/api/2'
     env_file:
       - aleph.env
 
@@ -178,6 +191,15 @@ services:
 
   topic:
     image: resero/aleph-topic-wrapper
+    tmpfs:
+      - /tmp
+
+  cluster:
+    image: document-clustering-app:mikewright
+    ports:
+      - "8002:8000"
+    links:
+      - postgres
     tmpfs:
       - /tmp
 
