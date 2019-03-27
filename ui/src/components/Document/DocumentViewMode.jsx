@@ -61,7 +61,7 @@ class DocumentViewMode extends React.Component {
     }
     return <DefaultViewer document={document} queryText={queryText} />;
   }
-  
+
   render() {
     const { document } = this.props;
     if (document.isLoading || document.shouldLoad) {

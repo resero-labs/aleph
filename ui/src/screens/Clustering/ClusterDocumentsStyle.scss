@@ -1,0 +1,39 @@
+.LandingPage {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+}
+
+.DocumentView {
+  width: 100%;
+  margin: auto;
+}
+
+.DocumentViewMode {
+  height: 100%;
+}
+
+.DocumentList {
+  margin: 10px;
+  width: 420px;
+  height: 100%;
+  border-right: 1px solid black;
+}
+
+.DocumentList table {
+  width: 85%;
+  border: 1px solid black;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+
+.nonSelected {
+  border-bottom: solid 1px black;
+}
+
+.selected {
+  background-color: lightgray;
+}
+

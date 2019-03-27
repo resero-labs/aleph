@@ -80,7 +80,8 @@ spec:
       restartPolicy: Always
       containers:
         - name: search-recognize-text
-          image: alephdata/aleph-recognize-text:{{ .Values.global.imagetag }}
+          #image: alephdata/aleph-recognize-text:{{ .Values.global.imagetag }}
+          image: resero/aleph-recognize-text:{{ .Values.global.imagetag }}
           imagePullPolicy: Always
           ports:
             - containerPort: 50000

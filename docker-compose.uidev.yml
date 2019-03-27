@@ -1,20 +1,19 @@
-version: "3.2"
+version: "2"
 
 services:
   postgres:
     image: postgres:10.0
-    ports:
-      - "3389:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: aleph
+      POSTGRES_USER:     aleph
       POSTGRES_PASSWORD: aleph
       POSTGRES_DATABASE: aleph
+    ports:
+      - "3389:5432"
 
   elasticsearch:
     image: alephdata/aleph-elasticsearch:6
-    restart: on-failure
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     ports:
@@ -22,23 +21,16 @@ services:
       - "9300:9300"
 
   rabbitmq:
-    # For development have the management system on
-    image: rabbitmq:management
+    image: rabbitmq
     hostname: queue
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
-    ports:
-      - "5672:5672"
-      - "5671:5671"
-      - "8082:15672"
 
   redis:
-      image: redis:alpine
-      command: ["redis-server", "--appendonly", "yes"]
-      volumes:
-        - redis-data:/data
-      ports:
-        - "6379:6379"
+    image: redis:alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
 
   convert-document:
     image: alephdata/aleph-convert-document
@@ -46,48 +38,23 @@ services:
     tmpfs:
       - /tmp
       - /root/.config
+    mem_limit: 2g
     expose:
       - 3000
 
   recognize-text:
     image: alephdata/aleph-recognize-text
     restart: on-failure
+    mem_limit: 2g
     expose:
       - 50000
 
   extract-entities:
     image: alephdata/aleph-extract-entities
     restart: on-failure
+    mem_limit: 4g
     expose:
       - 50000
-
-  app:
-    image: alephdata/aleph
-    command: /bin/bash
-    links:
-      - postgres
-      - elasticsearch
-      - rabbitmq
-      - redis
-      - convert-document
-      - recognize-text
-      - extract-entities
-    tmpfs: /tmp
-    volumes:
-      - archive-data:/data
-      - "./aleph:/aleph/aleph"
-      - "./contrib:/aleph/contrib"
-      - "./mappings:/aleph/mappings"
-      - "/:/host"
-    cap_add:
-      - SYS_PTRACE
-    environment:
-      ALEPH_DEBUG: 'true'
-      ALEPH_SECRET_KEY: 'development'
-      ALEPH_OAUTH: 'false'
-      ALEPH_ARCHIVE_TYPE: 'file'
-    env_file:
-      - aleph.env
 
   worker:
     image: alephdata/aleph
@@ -106,52 +73,6 @@ services:
     volumes:
       - archive-data:/data
       - "/:/host"
-    env_file:
-      - aleph.env
-
-  api:
-    image: alephdata/aleph
-    command: python3 aleph/manage.py runserver -h 0.0.0.0 -p 5000
-    expose:
-      - 5000
-    ports:
-      - "5000:5000"
-    restart: on-failure
-    links:
-      - postgres
-      - elasticsearch
-      - rabbitmq
-      - redis
-      - convert-document
-      - recognize-text
-      - extract-entities
-    tmpfs: /tmp
-    volumes:
-      - archive-data:/data
-      - "./aleph:/aleph/aleph"
-      - "/:/host"
-    environment:
-      ALEPH_DEBUG: 'true'
-      ALEPH_SECRET_KEY: 'development'
-      ALEPH_ARCHIVE_TYPE: 'file'
-    env_file:
-      - aleph.env
-
-  ui:
-    image: alephdata/aleph-ui
-    links:
-      - api
-      - topic
-    command: npm run start
-    ports:
-      - "8080:3000"
-    volumes:
-      - "./ui/src:/alephui/src"
-      - "./ui/public:/alephui/public"
-      - "./ui/.tx:/alephui/.tx"
-      - "./ui/package.json:/alephui/package.json"
-    environment:
-      REACT_APP_API_ENDPOINT: '/api/2'
     env_file:
       - aleph.env
 
@@ -176,15 +97,72 @@ services:
     env_file:
       - aleph.env
 
+  beat:
+    image: alephdata/aleph
+    command: celery -A aleph.queues beat -s /var/lib/celerybeat-schedule.db
+    links:
+      - postgres
+      - elasticsearch
+      - rabbitmq
+      - redis
+      - worker
+      - convert-document
+      - recognize-text
+      - extract-entities
+    tmpfs:
+      - /tmp
+    volumes:
+      - archive-data:/data
+    env_file:
+      - aleph.env
+
+  api:
+    image: alephdata/aleph
+    command: gunicorn -w 8 -b 0.0.0.0:5000 --log-level info --log-file /var/log/gunicorn.log aleph.manage:app
+    expose:
+      - 5000
+    links:
+      - postgres
+      - elasticsearch
+      - rabbitmq
+      - redis
+      - worker
+      - convert-document
+      - recognize-text
+      - extract-entities
+    tmpfs:
+      - /tmp
+    volumes:
+      - archive-data:/data
+    env_file:
+      - aleph.env
+
   topic:
     image: resero/aleph-topic-wrapper
     tmpfs:
       - /tmp
 
+  ui:
+    image: alephdata/aleph-ui
+    links:
+      - api
+      - topic
+    command: npm run start
+    ports:
+      - "8080:3000"
+    volumes:
+      - "./ui/src:/alephui/src"
+      - "./ui/public:/alephui/public"
+      - "./ui/.tx:/alephui/.tx"
+      - "./ui/package.json:/alephui/package.json"
+    environment:
+      REACT_APP_API_ENDPOINT: '/api/2'
+    env_file:
+      - aleph.env
 
 volumes:
   archive-data: {}
-  elasticsearch-data: {}
   postgres-data: {}
   rabbitmq-data: {}
   redis-data: {}
+  elasticsearch-data: {}

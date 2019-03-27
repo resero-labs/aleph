@@ -9,23 +9,34 @@ services:
       POSTGRES_USER:     aleph
       POSTGRES_PASSWORD: aleph
       POSTGRES_DATABASE: aleph
+    ports:
+      - "3389:5432"
 
   elasticsearch:
     image: alephdata/aleph-elasticsearch:6
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
 
   rabbitmq:
     image: rabbitmq
     hostname: queue
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "5671:5671"
+
 
   redis:
     image: redis:alpine
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis-data:/data
+    ports:
+      - "6379:6379"
 
   convert-document:
     image: alephdata/aleph-convert-document
@@ -43,7 +54,7 @@ services:
     mem_limit: 2g
     expose:
       - 50000
-  
+
   extract-entities:
     image: alephdata/aleph-extract-entities
     restart: on-failure
@@ -70,7 +81,7 @@ services:
       - "/:/host"
     env_file:
       - aleph.env
-  
+
   shell:
     image: alephdata/aleph
     command: /bin/bash
@@ -116,6 +127,8 @@ services:
     command: gunicorn -w 8 -b 0.0.0.0:8000 --log-level info --log-file /var/log/gunicorn.log aleph.manage:app
     expose:
       - 8000
+    ports:
+      - "5000:8000"
     links:
       - postgres
       - elasticsearch
@@ -132,10 +145,16 @@ services:
     env_file:
       - aleph.env
 
+  topic:
+    image: resero/aleph-topic-wrapper
+    tmpfs:
+      - /tmp
+
   ui:
     image: alephdata/aleph-ui-production
     links:
       - api
+      - topic
     ports:
       - "8080:8080"
 

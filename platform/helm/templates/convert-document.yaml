@@ -80,7 +80,8 @@ spec:
       restartPolicy: Always
       containers:
         - name: search-convert-document
-          image: alephdata/aleph-convert-document:{{ .Values.global.imagetag }}
+          #image: alephdata/aleph-convert-document:{{ .Values.global.imagetag }}
+          image: resero/aleph-convert-document:{{ .Values.global.imagetag }}
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

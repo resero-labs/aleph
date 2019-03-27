@@ -55,7 +55,7 @@ class DocumentScreenContext extends Component {
         <DocumentContextLoader documentId={documentId}>
           <LoadingScreen />
         </DocumentContextLoader>
-      ); 
+      );
     }
 
     const title = document.title || document.file_name || document.name;
@@ -102,6 +102,7 @@ class DocumentScreenContext extends Component {
 const mapStateToProps = (state, ownProps) => {
   const { documentId, location } = ownProps;
   const document = selectEntity(state, documentId);
+  console.log(`DEBUG MKW - DocumentScreenContext: ${JSON.stringify(document)}`);
   const query = Query.fromLocation('entities', location, {}, 'document');
   return { document, query };
 };

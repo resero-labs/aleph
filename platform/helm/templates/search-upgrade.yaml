@@ -11,7 +11,8 @@ spec:
       restartPolicy: Never
       containers:
         - name: search-upgrade
-          image: alephdata/aleph:{{ .Values.global.imagetag }}
+          #image: alephdata/aleph:{{ .Values.global.imagetag }}
+          image: resero/aleph:{{ .Values.global.imagetag }}
           imagePullPolicy: Always
           command: ["aleph", "upgrade"]
           resources:

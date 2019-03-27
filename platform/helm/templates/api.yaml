@@ -68,7 +68,8 @@ spec:
       restartPolicy: Always
       containers:
         - name: search-api
-          image: alephdata/aleph:{{ .Values.global.imagetag }}
+          #image: alephdata/aleph:{{ .Values.global.imagetag }}
+          image: resero/aleph:{{ .Values.global.imagetag }}
           imagePullPolicy: Always
           command:
             - gunicorn 

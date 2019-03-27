@@ -12,4 +12,4 @@ COPY scripts /alephui/scripts
 COPY config /alephui/config
 COPY src /alephui/src
 
-# RUN npm run build
+#RUN npm run build

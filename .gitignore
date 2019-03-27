@@ -26,3 +26,4 @@ ui/.idea/
 node_modules/*
 
 activate
+*.swp

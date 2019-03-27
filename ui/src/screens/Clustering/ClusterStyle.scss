@@ -1,0 +1,50 @@
+.ClusterPage {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+}
+
+.ClusterVisualization {
+  height: 100%;
+  padding-top: 100px;
+  margin: auto;
+}
+
+.ClusterList {
+  margin: 10px;
+  width: 300px;
+  height: 100%;
+  border-right: 1px solid black;
+}
+
+.ClusterItem {
+  display: flex;
+  //flex-direction: row;
+  flex-flow: row wrap;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.ClusterItem input {
+  order: 1;
+  margin: 15px;
+}
+
+.ClusterItem .ClusterDetails {
+  order: 2;
+  flex-basis: 60%;
+}
+
+.ClusterDetails p {
+  order: 1
+}
+
+.ClusterDetails a {
+  order: 2
+}
+
+.ClusterItem svg {
+  order: 3
+}
+

@@ -139,7 +139,8 @@ spec:
             name: search-web-config
       containers:
         - name: search-web
-          image: alephdata/aleph-ui-production:{{ .Values.global.imagetag }}
+          #image: alephdata/aleph-ui-production:{{ .Values.global.imagetag }}
+          image: resero/aleph-ui-production:{{ .Values.global.imagetag }}
           imagePullPolicy: Always
           resources:
             requests:

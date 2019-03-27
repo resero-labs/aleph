@@ -20,7 +20,7 @@ class DocumentViews extends React.Component {
     super(props);
     this.handleTabChange = this.handleTabChange.bind(this);
   }
-  
+
   hasSchemata(schemata) {
     const { document } = this.props;
     return _.intersection(document.schemata, schemata).length > 0;
@@ -48,6 +48,9 @@ class DocumentViews extends React.Component {
     const hasBrowseMode = this.hasSchemata(['Folder']);
     const hasViewer = this.hasSchemata(['Pages', 'Email', 'Image', 'HyperText', 'Table', 'PlainText']);
     const hasViewMode = hasViewer || (!hasBrowseMode && !hasTextMode);
+
+    console.log(`DEBUG MKW: ${JSON.stringify(document)}`);
+    console.log(`DEBUG MKW: ${activeMode}`);
 
     return (
       <Tabs id="DocumentInfoTabs"

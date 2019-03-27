@@ -57,7 +57,8 @@ spec:
       restartPolicy: Always
       containers:
         - name: search-extract-entities
-          image: alephdata/aleph-extract-entities:{{ .Values.global.imagetag }}
+          #image: alephdata/aleph-extract-entities:{{ .Values.global.imagetag }}
+          image: resero/aleph-extract-entities:{{ .Values.global.imagetag }}
           imagePullPolicy: Always
           ports:
             - containerPort: 50000

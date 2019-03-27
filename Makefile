@@ -1,4 +1,4 @@
-COMPOSE=docker-compose -f docker-compose.dev.yml 
+COMPOSE=docker-compose -f docker-compose.dev.yml
 DEVDOCKER=$(COMPOSE) run --rm app
 TAG=latest
 
@@ -10,7 +10,7 @@ services:
 		convert-document recognize-text \
 		extract-entities dejavu
 
-shell: services    
+shell: services
 	$(DEVDOCKER) /bin/bash
 
 test:
@@ -47,14 +47,33 @@ clean:
 	find ui/src -name '*.css' -exec rm -f {} +
 
 build:
+	docker build --cache-from resero/aleph-topic-wrapper -t resero/aleph-topic-wrapper:$(TAG) topic-wrapper
 	docker build --cache-from alephdata/aleph -t alephdata/aleph:$(TAG) .
 	docker build --cache-from alephdata/aleph-ui -t alephdata/aleph-ui:$(TAG) ui
 	docker build --cache-from alephdata/aleph-convert-document -t alephdata/aleph-convert-document:$(TAG) services/convert-document
 	docker build --cache-from alephdata/aleph-recognize-text -t alephdata/aleph-recognize-text:$(TAG) services/recognize-text
 	docker build --cache-from alephdata/aleph-extract-entities -t alephdata/aleph-extract-entities:$(TAG) services/extract-entities
+	docker build -t alephdata/aleph-ui-production:$(TAG) -f ui/Dockerfile.production ui
+
+tag:
+	docker tag alephdata/aleph:$(TAG) resero/aleph:$(TAG)
+	docker tag alephdata/aleph-ui:$(TAG) resero/aleph-ui:$(TAG)
+	docker tag alephdata/aleph-ui-production:$(TAG) resero/aleph-ui-production:$(TAG)
+	docker tag alephdata/aleph-convert-document:$(TAG) resero/aleph-convert-document:$(TAG)
+	docker tag alephdata/aleph-recognize-text:$(TAG) resero/aleph-recognize-text:$(TAG)
+	docker tag alephdata/aleph-extract-entities:$(TAG) resero/aleph-extract-entities:$(TAG)
+
+
+build-dev-ui:
+	#docker build -t alephdata/aleph-ui-production:$(TAG) -f ui/Dockerfile.production ui
+	docker build --cache-from alephdata/aleph-ui -t alephdata/aleph-ui:$(TAG) ui
+	#docker build --cache-from resero/aleph-topic-wrapper -t resero/aleph-topic-wrapper:$(TAG) topic-wrapper
+
 
 build-ui:
 	docker build -t alephdata/aleph-ui-production:$(TAG) -f ui/Dockerfile.production ui
+
+
 
 build-full: build build-ui
 
@@ -66,6 +85,14 @@ docker-pull:
 	docker pull alephdata/aleph-extract-entities
 
 docker-push:
+	docker push resero/aleph:$(TAG)
+	docker push resero/aleph-ui:$(TAG)
+	docker push resero/aleph-ui-production:$(TAG)
+	docker push resero/aleph-convert-document:$(TAG)
+	docker push resero/aleph-recognize-text:$(TAG)
+	docker push resero/aleph-extract-entities:$(TAG)
+
+docker-push-orig:
 	docker push alephdata/aleph:$(TAG)
 	docker push alephdata/aleph-ui:$(TAG)
 	docker push alephdata/aleph-ui-production:$(TAG)
@@ -73,7 +100,7 @@ docker-push:
 	docker push alephdata/aleph-recognize-text:$(TAG)
 	docker push alephdata/aleph-extract-entities:$(TAG)
 
-dev: 
+dev:
 	pip install -q transifex-client bumpversion babel jinja2
 
 # pybabel init -i aleph/translations/messages.pot -d aleph/translations -l de -D aleph

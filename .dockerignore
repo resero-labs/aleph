@@ -2,7 +2,7 @@ build
 services
 aleph.env
 aleph.egg-info
-docker-compose.*
+#docker-compose.*
 celerybeat-schedul*
 .git
 .vscode

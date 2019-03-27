@@ -1,0 +1,98 @@
+@import 'src/app/variables.scss';
+
+.noCredentialsPage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 4em 0;
+  text-align: center;
+  vertical-align: center;
+}
+
+.noLoginMessage {
+
+}
+
+
+.landingPage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 4em 0;
+  text-align: center;
+  vertical-align: center;
+}
+
+
+
+
+// -----
+// This is for the TopicViewing to get summary information and wordcloud images
+// -----
+
+// Loading
+.loadingSection {
+  display: flex;
+  width: 1280px;
+  height: 100%;
+  margin: 0 auto 0 auto;
+  align-content: center;
+  vertical-align: center;
+}
+
+.loadingHeader {
+  font: 14pt bold;
+}
+
+.loadingDetails {
+  font: 10pt bold italic;
+}
+
+.loadingProgress {
+
+}
+
+
+// Viewing
+.topicViewPage {
+  display: flex;
+  margin: 0 auto 0 auto;
+  width: 1280px;
+  flex-direction: column;
+  //flex-wrap: wrap;
+}
+
+.userSummary {
+  font: 14pt bold;
+}
+
+.emailCount {
+}
+
+.attachmentcount {
+}
+
+.toipcCount {
+}
+
+
+.wordClouds {
+}
+
+.topicPredominance {
+}
+
+
+// .topicItem {
+//   margin: 3em;
+// }
+
+// .topicItem img {
+//   width: 20%;
+//   margin: 3em;
+//   border: lightgrey solid;
+// }
