@@ -49,9 +49,6 @@ class DocumentViews extends React.Component {
     const hasViewer = this.hasSchemata(['Pages', 'Email', 'Image', 'HyperText', 'Table', 'PlainText']);
     const hasViewMode = hasViewer || (!hasBrowseMode && !hasTextMode);
 
-    console.log(`DEBUG MKW: ${JSON.stringify(document)}`);
-    console.log(`DEBUG MKW: ${activeMode}`);
-
     return (
       <Tabs id="DocumentInfoTabs"
             onChange={this.handleTabChange}

@@ -60,7 +60,8 @@ class Router extends Component {
         <Switch>
           <Route path="/" exact component={ClusterUserScreen} />
           <Route path="/cluster/:user" exact component={ClusterViewScreen} />
-          <Route path="/cluster/:user/documents/:number" exact component={ClusterDocumentScreen} />
+          <Route path="/cluster/:user/clusters/:level/:parent" exact component={ClusterViewScreen} />
+          <Route path="/cluster/:user/documents/:level/:parent/:cluster" exact component={ClusterDocumentScreen} />
 
           <Route path="/oauth" exact component={OAuthScreen} />
           <Route path="/logout" exact component={LogoutScreen} />

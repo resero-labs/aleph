@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
@@ -7,6 +8,9 @@ import { selectSession, selectEntity, selectDocumentView } from 'src/selectors';
 import Screen from 'src/components/Screen/Screen';
 import DocumentViewMode from 'src/components/Document/DocumentViewMode';
 import DocumentContextLoader from 'src/components/Document/DocumentContextLoader';
+
+import { withStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
 
 
 import './ClusterDocumentsStyle.scss';
@@ -24,7 +28,10 @@ class PageView extends React.Component {
         { name: 'Rowe_resume.pdf', id: 35471 },
       ],
       selectedDocument: 17471,
-      selectedIndex: 0
+      // selectedDocument: 0,
+      documentName: null,
+      selectedIndex: 0,
+      parents: []
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -32,10 +39,85 @@ class PageView extends React.Component {
 
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyPress);
+
+    let parentClusters = [];
+    if (!(this.props.parentCluster === undefined || this.props.parentCluster === null || isNaN(this.props.parentCluster))) {
+      parentClusters.push(this.props.parentCluster);
+    }
+    console.log('here', parentClusters);
+
+    axios.get('/clusterapi').then(
+      res => {
+        let clusterDetails = res.data.clusters.local[0];
+        console.log('Lets udpate', this.props.clusterLEvel, this.props.cluster);
+        this.updateDocumentList(clusterDetails, this.props.cluster, this.props.clusterLevel, parentClusters);
+      }
+    );
   }
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyPress);
+  }
+
+  findClusterIdsByLevel(clusterDetails, cluster, clusterLevel) {
+    if (clusterDetails === undefined) {
+      return [];
+    }
+
+    clusterLevel = clusterLevel === undefined ? 0 : clusterLevel;
+    if (clusterLevel < 0 || clusterLevel > clusterDetails.config.clustering.params.length) {
+      console.log(`ClusterLevel ${clusterLevel} is outside the bounds of the data, setting to clusterLevel 0`);
+      clusterLevel = 0;
+    }
+
+    return clusterDetails.results.map(x => {
+      let clusterId = x.clusters[clusterLevel];
+      let parentCluster = null;
+      if (clusterLevel > 0) {
+        parentCluster = x.clusters[clusterLevel-1];
+      }
+
+      return {
+        parentCluster: parentCluster,
+        cluster: clusterId,
+        id: x.doc_id,
+        key: x.key,
+        name: x.key
+      };
+    }).filter(x => x.cluster === cluster);
+  }
+
+  updateDocumentList(clusterDetails, cluster, clusterLevel, parentClusters) {
+    let allDocuments = this.findClusterIdsByLevel(clusterDetails, cluster, clusterLevel);
+    let documents = allDocuments;
+
+    console.log(documents);
+    console.log(parentClusters);
+    if (parentClusters !== undefined && parentClusters !== null && parentClusters.length > 0) {
+      documents = documents.filter(x => parentClusters.indexOf(x.parentCluster) !== -1);
+    }
+
+    documents = documents.sort((l, r) => l.parentCluster - r.parentCluster);
+
+    this.setState((state) => {
+      let parentIds = Array.from(new Set(allDocuments.map(x => x.parentCluster)));
+      state.parents = parentIds.map(x => {
+        return {
+          id: x,
+          selected: parentClusters.indexOf(x) !== -1
+        };
+      });
+      state.documents = documents;
+      if (documents.length <= 0) {
+        state.selectedDocument = -1;
+        state.documentName = null;
+      } else{
+        state.selectedDocument = documents[0].id;
+        state.documentName = documents[0].name;
+      }
+      state.clusterDetails = clusterDetails;
+      return state;
+    });
   }
 
   selectDocument(docId) {
@@ -53,10 +135,16 @@ class PageView extends React.Component {
 
   renderDocumentList() {
     return this.state.documents.map(doc => {
-      const { name, id } = doc;
+      let { name, id, parentCluster } = doc;
+
+      let lastIdx = name.lastIndexOf('/');
+      if (lastIdx != -1) {
+        name = name.substring(lastIdx+1);
+      }
+
       return (
         <tr onClick={() => this.selectDocument(id)} className={this.state.selectedDocument === id ? 'selected' : 'nonSelected'}>
-          <td>{name}</td>
+          <td className='ClusterParentTD'>{parentCluster}</td><td>{name}</td>
           {/* <td>{id}</td> */}
         </tr>
       );
@@ -104,6 +192,38 @@ class PageView extends React.Component {
     }
   }
 
+  toggleSelectedParent(id) {
+    let selectedParents = [];
+
+    for (var c in this.state.parents) {
+      let parent = this.state.parents[c];
+      if (parent.id === id) {
+        let selected = !parent.selected;
+        if (selected) {
+          selectedParents.push(id);
+        }
+      } else {
+        if (parent.selected) {
+          selectedParents.push(parent.id);
+        }
+      }
+    }
+
+    console.log(id, this.state.parents);
+    this.updateDocumentList(this.state.clusterDetails, this.props.cluster, this.props.clusterLevel, selectedParents);
+  }
+
+  renderAvailableParents() {
+    const { classes } = this.props;
+    return this.state.parents.map(x => {
+      let color = x.selected ? 'primary' : 'secondary';
+
+      return (
+        <Button variant="contained" color={color} className={classes.button} onClick={() => this.toggleSelectedParent(x.id)}>{x.id}</Button>
+      );
+    });
+  }
+
   renderLoggedIn() {
     const { user, cluster } = this.props;
 
@@ -117,7 +237,7 @@ class PageView extends React.Component {
         <section className='LandingPage'>
           <div className='DocumentList'>
             <div>
-              <h1>Cluster {cluster+1}</h1>
+              <h1>Cluster {cluster}</h1>
             </div>
             <table>
               <tbody>
@@ -127,11 +247,22 @@ class PageView extends React.Component {
           </div>
 
           <div className='DocumentView'>
-            {this.state.selectedDocument !== -1 &&
-              <DocumentContextLoader documentId={this.state.selectedDocument}>
-                <DocumentViewMode document={doc} activeMode="view" />
-              </DocumentContextLoader>
-            }
+            <div>
+              <div className='DocumentParentButtons'>
+                {this.renderAvailableParents()}
+              </div>
+              <hr />
+              {this.state.selectedDocument !== -1 &&
+                <div>
+                  <div className='DocumentTitle'>
+                    {this.state.documentName}
+                  </div>
+                  <DocumentContextLoader documentId={this.state.selectedDocument}>
+                    <DocumentViewMode document={doc} activeMode="view" />
+                  </DocumentContextLoader>
+                </div>
+              }
+            </div>
           </div>
 
         </section>
@@ -163,19 +294,31 @@ class PageView extends React.Component {
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const {user, number} = ownProps.match.params;
+  const {user, cluster, level, parent} = ownProps.match.params;
 
   return {
     state: state,
     user: user,
-    cluster: parseInt(number),
+    cluster: parseInt(cluster),
+    clusterLevel: parseInt(level),
+    parentCluster: parseInt(parent),
     session: selectSession(state),
     document: selectEntity(state, 17471),
     mode: selectDocumentView(state, 17471, null)
   };
 };
 
+const styles = theme => ({
+  button: {
+    margin: theme.spacing.unit,
+  },
+  input: {
+    display: 'none',
+  },
+});
+
 let Page = connect(mapStateToProps)(PageView);
 Page = withRouter(Page);
+Page = withStyles(styles)(Page);
 export default Page;
 

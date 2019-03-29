@@ -7,7 +7,13 @@
 
 .ClusterVisualization {
   height: 100%;
+  width: 50%;
   padding-top: 100px;
+  margin: auto;
+}
+
+.ClusterDetails {
+  width: 100%;
   margin: auto;
 }
 
@@ -46,5 +52,9 @@
 
 .ClusterItem svg {
   order: 3
+}
+
+.ClusterBar {
+  width: 1024px;
 }
 
